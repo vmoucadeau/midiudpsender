@@ -5,7 +5,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
-// import 'package:udp/udp.dart';
+import 'package:xterm/xterm.dart';
+import 'package:xterm/flutter.dart';
 
 class ControllerPage extends StatelessWidget {
   final MidiDevice device;
@@ -36,7 +37,6 @@ class MidiControls extends StatefulWidget {
 
 void sendtoserver(data) async {
   List<int> datalist = [data[1], data[2]];
-  print(datalist);
   RawDatagramSocket.bind(InternetAddress.anyIPv4, 65000).then((RawDatagramSocket socket) {
     socket.broadcastEnabled = true;
     socket.send(datalist, InternetAddress('255.255.255.255'), 65000);
@@ -47,6 +47,7 @@ class MidiControlsState extends State<MidiControls> {
   // StreamSubscription<String> _setupSubscription;
   StreamSubscription<MidiPacket>? _rxSubscription;
   MidiCommand _midiCommand = MidiCommand();
+  final terminal = Terminal(maxLines: 10000);
 
   @override
   void initState() {
@@ -55,6 +56,7 @@ class MidiControlsState extends State<MidiControls> {
       var timestamp = packet.timestamp;
       var device = packet.device;
       sendtoserver(data);
+      terminal.write("Note: " + data[1].toString() + " Velocity: " + data[2].toString() + "\r\n");
     });
 
     super.initState();
@@ -68,11 +70,12 @@ class MidiControlsState extends State<MidiControls> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.all(12),
-      children: <Widget>[
+    return Scaffold(
+        body: Column(
+      children: [
         Text("MIDI through UDP port 65000"),
+        Expanded(child: TerminalView(terminal: terminal, style: TerminalStyle(fontSize: 20))),
       ],
-    );
+    ));
   }
 }

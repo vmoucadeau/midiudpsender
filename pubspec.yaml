@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_midi_command: ^0.4.5
   udp: ^5.0.3
+  xterm: ^2.6.0
 
 dev_dependencies:
   flutter_test:
