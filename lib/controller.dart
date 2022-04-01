@@ -56,7 +56,7 @@ class MidiControlsState extends State<MidiControls> {
       var timestamp = packet.timestamp;
       var device = packet.device;
       sendtoserver(data);
-      terminal.write("Data0: " +
+      terminal.write("Controller: " +
           data[0].toString() +
           " | Note: " +
           data[1].toString() +
