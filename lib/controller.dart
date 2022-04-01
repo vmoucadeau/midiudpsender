@@ -36,7 +36,7 @@ class MidiControls extends StatefulWidget {
 }
 
 void sendtoserver(data) async {
-  List<int> datalist = [data[1], data[2]];
+  List<int> datalist = [data[1], data[2], data[0]];
   RawDatagramSocket.bind(InternetAddress.anyIPv4, 65000).then((RawDatagramSocket socket) {
     socket.broadcastEnabled = true;
     socket.send(datalist, InternetAddress('255.255.255.255'), 65000);
@@ -56,7 +56,13 @@ class MidiControlsState extends State<MidiControls> {
       var timestamp = packet.timestamp;
       var device = packet.device;
       sendtoserver(data);
-      terminal.write("Note: " + data[1].toString() + " Velocity: " + data[2].toString() + "\r\n");
+      terminal.write("Data0: " +
+          data[0].toString() +
+          " | Note: " +
+          data[1].toString() +
+          " | Velocity: " +
+          data[2].toString() +
+          "\r\n");
     });
 
     super.initState();

@@ -3,7 +3,7 @@ import codecs
 import sys
 
 from rtmidi.midiutil import open_midioutput
-from rtmidi.midiconstants import NOTE_OFF, NOTE_ON
+from rtmidi.midiconstants import NOTE_OFF, NOTE_ON, CONTROL_CHANGE
 
 localPort   = 65000
 bufferSize  = 1024
@@ -26,32 +26,35 @@ note_off = [NOTE_OFF, 60, 0]
 
 print("Ecoute du midi sur le port 65000")
 
-try:
-    while midiout:
-        
-        bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
 
-        message = bytesAddressPair[0]
-
-        address = bytesAddressPair[1]
-
-        hexa = codecs.encode(message, 'hex')
-        note = int(hexa[:2], 16)
-        velocity = int(hexa[2:4], 16)
-        print(note, velocity)
-        
-        note_tosend = [NOTE_OFF, 60, 0]
-        if velocity > 0:
-            note_tosend = [NOTE_ON, note, velocity]
-        else:
-            note_tosend = [NOTE_OFF, note, velocity]
-        midiout.send_message(note_tosend)
-except KeyboardInterrupt:
-    print("\nStopping...")
-    midiout.close()
-    UDPServerSocket.close()
-    sys.exit()
+while midiout:
     
+    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
+
+    message = bytesAddressPair[0]
+
+    address = bytesAddressPair[1]
+
+    hexa = codecs.encode(message, 'hex')
+    note = int(hexa[:2], 16)
+    velocity = int(hexa[2:4], 16)
+    controller = int(hexa[4:6], 16)
+    
+    if controller == 144:
+        if velocity > 0:
+            notetype = NOTE_ON
+        else:
+            notetype = NOTE_OFF
+    elif controller == 176:
+        notetype = CONTROL_CHANGE
+    else:
+        notetype = NOTE_OFF
+    
+    note_tosend = [notetype, note, velocity]
+    print(note_tosend)
+    midiout.send_message(note_tosend)
+
+del midiout    
 
     
    
